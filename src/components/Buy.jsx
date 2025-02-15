@@ -22,7 +22,7 @@ const Buy = ({ orderDetails, splitSymbol }) => {
     }
 
     const socket = new WebSocket(
-      `wss://payments.pre-bnvo.com/ws/${
+      `ws://payments.pre-bnvo.com/ws/${
         orderDetails && orderDetails.identifier
       }`
     );
