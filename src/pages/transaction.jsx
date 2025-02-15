@@ -11,7 +11,7 @@ const Transaction = () => {
   const [orderDetails, setOrderDetails] = useState(null);
   const url = process.env.NEXT_PUBLIC_URL;
   const idDevice = process.env.NEXT_PUBLIC_ID_DEVICE;
-  console.log(orderDetails);
+
   useEffect(() => {
     if (identifier) {
       fetchOrders(url, idDevice, identifier).then((res) => {
@@ -19,19 +19,24 @@ const Transaction = () => {
       });
     }
   }, [identifier]);
+  const splitSymbol = (symbol) => {
+    const result = symbol.split("_")[0];
+    return result;
+  };
+
   return (
     <section className="flex gap-5 w-full justify-center h-screen mt-20">
       <div className="flex flex-col w-2/5">
         <h2 className="text-left text-customBlue font-medium mb-2">
           Resumen del pedido
         </h2>
-        <InfoBuy orderDetails={orderDetails} />
+        <InfoBuy orderDetails={orderDetails} splitSymbol={splitSymbol}/>
       </div>
       <div className="flex flex-col w-2/5">
         <h2 className="text-left text-customBlue font-medium mb-2">
           Realiza el pago
         </h2>
-        <Buy orderDetails={orderDetails} />
+        <Buy orderDetails={orderDetails} splitSymbol={splitSymbol}/>
       </div>
     </section>
   );
