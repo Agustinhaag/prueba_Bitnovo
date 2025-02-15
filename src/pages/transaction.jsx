@@ -27,13 +27,13 @@ const Transaction = () => {
   return (
     <section className="flex gap-5 w-full justify-center h-screen mt-20">
       <div className="flex flex-col w-2/5">
-        <h2 className="text-left text-customBlue font-medium mb-2">
+        <h2 className="text-left text-customBlue font-medium mb-3">
           Resumen del pedido
         </h2>
         <InfoBuy orderDetails={orderDetails} splitSymbol={splitSymbol}/>
       </div>
       <div className="flex flex-col w-2/5">
-        <h2 className="text-left text-customBlue font-medium mb-2">
+        <h2 className="text-left text-customBlue font-medium mb-3">
           Realiza el pago
         </h2>
         <Buy orderDetails={orderDetails} splitSymbol={splitSymbol}/>

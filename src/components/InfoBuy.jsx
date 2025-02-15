@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import React from "react";
 import { BsFillPatchCheckFill } from "react-icons/bs";
 
-const InfoBuy = ({ orderDetails,splitSymbol }) => {
+const InfoBuy = ({ orderDetails, splitSymbol }) => {
   return (
     <>
       {orderDetails && (
@@ -13,16 +13,16 @@ const InfoBuy = ({ orderDetails,splitSymbol }) => {
           </div>
           <div className="border-b border-neutral-300 pb-4 flex justify-between">
             <span>Moneda seleccionada:</span>
-            <span>{splitSymbol(orderDetails.currency_id) }</span>
+            <span>{splitSymbol(orderDetails.currency_id)}</span>
           </div>
           <div className="border-b border-neutral-300 pb-4 flex flex-col gap-5">
             <div className="flex justify-between">
               <span>Comercio:</span>
-              <div>
+              <div className="flex gap-1 items-center">
                 <span className="text-[#15BBE0]">
                   <BsFillPatchCheckFill />
                 </span>
-                <span></span>
+                <span>Comercio de prueba</span>
               </div>
             </div>
             <div className="flex justify-between">

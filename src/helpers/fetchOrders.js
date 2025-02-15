@@ -1,5 +1,8 @@
-export const submitOrder = async (url, idDevice, values) => {
+import Swal from "sweetalert2";
+
+export const submitOrder = async (url, idDevice, values, setLoading) => {
   try {
+    setLoading(true);
     const formData = new FormData();
     formData.append("expected_output_amount", Number(values.amount));
     formData.append("input_currency", values.selectedCurrency.symbol);
@@ -13,11 +16,19 @@ export const submitOrder = async (url, idDevice, values) => {
       body: formData,
     });
     if (!response.ok) {
+      setLoading(false);
       throw new Error(`Error: ${response.status} - ${await response.text()}`);
     }
+    Swal.fire({
+      title: "Orden creada correctamente",
+      text: "Sera redirijido al resumen de su orden.",
+      icon: "success",
+    });
     const data = await response.json();
+    setLoading(false);
     return data;
   } catch (error) {
+    setLoading(false)
     console.log(error);
   }
 };

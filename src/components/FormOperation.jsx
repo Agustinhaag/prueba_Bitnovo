@@ -4,6 +4,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { CiCircleInfo } from "react-icons/ci";
+import style from "./button.module.css";
 import { IoIosArrowDown } from "react-icons/io";
 
 const FormOperation = ({
@@ -12,11 +13,12 @@ const FormOperation = ({
   viewModalMoney,
 }) => {
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
   const url = process.env.NEXT_PUBLIC_URL;
   const idDevice = process.env.NEXT_PUBLIC_ID_DEVICE;
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     if (selectedCurrency) {
@@ -33,8 +35,16 @@ const FormOperation = ({
       validate={(values) => validateForm(values, minAmount, maxAmount)}
       onSubmit={async (values) => {
         try {
-          const response =  await submitOrder(url, idDevice, {...values, selectedCurrency})
-           if(response) router.push(`/transaction?id=${response.identifier}`)
+          const response = await submitOrder(
+            url,
+            idDevice,
+            {
+              ...values,
+              selectedCurrency,
+            },
+            setLoading
+          );
+          if (response) router.push(`/transaction?id=${response.identifier}`);
         } catch (error) {
           console.log(error);
         }
@@ -128,10 +138,11 @@ const FormOperation = ({
               }`}
               disabled={
                 !formikProps.values.amount ||
-                formikProps.values.description.trim() === ""
+                formikProps.values.description.trim() === "" ||
+                loading
               }
             >
-              Continuar
+              {loading ? <span className={style.loader}></span> : "Continuar"}
             </button>
           </div>
         </Form>

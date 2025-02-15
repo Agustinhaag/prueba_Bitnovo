@@ -6,51 +6,55 @@ import { useRouter } from "next/navigation";
 
 const Buy = ({ orderDetails, splitSymbol }) => {
   const [activeButton, setActiveButton] = useState("qr");
-  const [timeLeft, setTimeLeft] = useState(6 * 60);
+  const [timeLeft, setTimeLeft] = useState(5 * 60);
   const router = useRouter();
   const [paymentStatus, setPaymentStatus] = useState(
     orderDetails?.status || "pending"
   );
-
+  console.log(orderDetails);
   const handleButtonClick = (buttonType) => {
     setActiveButton(buttonType);
   };
 
   useEffect(() => {
     if (orderDetails?.status === "EX" || orderDetails?.status === "OC") {
-      router.push("/error");
+      router.push("/result/ko");
     }
 
+    const socket = new WebSocket(
+      `wss://payments.pre-bnvo.com/ws/${
+        orderDetails && orderDetails.identifier
+      }`
+    );
 
-    // const socket = new WebSocket(
-    //   `wss://payments.pre-bnvo.com/ws/${orderDetails.identifier}`
-    // );
+    socket.onopen = () => {
+      console.log("Conexión WebSocket establecida.");
+    };
 
-    // socket.onopen = () => {
-    //   console.log("Conexión WebSocket establecida.");
-    // };
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Mensaje recibido:", data);
 
-    // socket.onmessage = (event) => {
-    //   const data = JSON.parse(event.data);
-    //   console.log("Mensaje recibido:", data);
+      if (data.status) {
+        setPaymentStatus(data.status);
+      }
+      if (paymentStatus === "CO" || paymentStatus === "AC") {
+        router.push("/result/ok");
+      }
+    };
 
-    //   if (data.status) {
-    //     setPaymentStatus(data.status);
-    //   }
-    // };
+    socket.onerror = (error) => {
+      console.error("Error en WebSocket:", error);
+    };
 
-    // socket.onerror = (error) => {
-    //   console.error("Error en WebSocket:", error);
-    // };
+    socket.onclose = () => {
+      console.log("Conexión WebSocket cerrada.");
+    };
 
-    // socket.onclose = () => {
-    //   console.log("Conexión WebSocket cerrada.");
-    // };
-
-    // return () => {
-    //   socket.close();
-    // };
-  }, [orderDetails]);
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   useEffect(() => {
     if (timeLeft === 0) return;
@@ -60,7 +64,7 @@ const Buy = ({ orderDetails, splitSymbol }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, []);
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
@@ -68,9 +72,7 @@ const Buy = ({ orderDetails, splitSymbol }) => {
     return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
   };
 
-  const qrData = `${orderDetails && orderDetails.address}?amount=${
-    orderDetails && orderDetails.crypto_amount
-  }`;
+  const qrData = `${orderDetails && orderDetails.address}`;
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(
@@ -133,34 +135,34 @@ const Buy = ({ orderDetails, splitSymbol }) => {
                 {orderDetails.crypto_amount}{" "}
                 {splitSymbol(orderDetails.currency_id)}
               </span>
-              <span
+              <button
                 className="text-sky-600"
                 onClick={() => copyToClipboard(orderDetails.crypto_amount)}
               >
                 <MdOutlineContentCopy />
-              </span>
+              </button>
             </div>
           </div>
           <div className="flex gap-2 text-sm items-center my-3 ">
             <span className="break-words">{orderDetails.address}</span>
-            <span
+            <button
               className="text-sky-600"
               onClick={() => copyToClipboard(orderDetails.address)}
             >
               <MdOutlineContentCopy />
-            </span>
+            </button>
           </div>
           <div className="flex gap-2 text-sm items-center">
             <span className="text-[#EAB30866] text-lg">
               <TbInfoHexagon />
             </span>
-            <span>Etiqueta de destino:</span>
-            <span
+            <span>Etiqueta de destino: {orderDetails.tag_memo}</span>
+            <button
               className="text-sky-600"
-              onClick={() => copyToClipboard(orderDetails.address)}
+              onClick={() => copyToClipboard(orderDetails.tag_memo)}
             >
               <MdOutlineContentCopy />
-            </span>
+            </button>
           </div>
         </div>
       )}
