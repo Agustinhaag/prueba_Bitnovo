@@ -20,10 +20,12 @@ const Buy = ({ orderDetails, splitSymbol }) => {
     if (orderDetails?.status === "EX" || orderDetails?.status === "OC") {
       router.push("/result/ko");
     }
+if(orderDetails){
+
 
     const socket = new WebSocket(
-      `ws://payments.pre-bnvo.com/ws/${
-        orderDetails && orderDetails.identifier
+      `wss://payments.pre-bnvo.com/ws/${
+       orderDetails.identifier
       }`
     );
 
@@ -54,6 +56,7 @@ const Buy = ({ orderDetails, splitSymbol }) => {
     return () => {
       socket.close();
     };
+  }
   }, []);
 
   useEffect(() => {
