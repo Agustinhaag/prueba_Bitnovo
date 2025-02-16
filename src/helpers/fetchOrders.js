@@ -30,6 +30,9 @@ export const submitOrder = async (
       text: "Sera redirijido al resumen de su orden.",
       icon: "success",
     });
+    localStorage.removeItem("orderExpired");
+    localStorage.removeItem("timeLeft");
+
     const data = await response.json();
     setLoading(false);
     return data;
@@ -39,7 +42,6 @@ export const submitOrder = async (
     setError(error.message);
   }
 };
-
 
 export const fetchOrdersInfo = async (url, idDevice, identifier) => {
   try {

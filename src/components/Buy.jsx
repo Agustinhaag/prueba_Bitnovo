@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import ReactQR from "react-qr-code";
 import { MdOutlineContentCopy, MdOutlineTimer } from "react-icons/md";
@@ -18,10 +20,23 @@ const Buy = ({ orderDetails, splitSymbol }) => {
     setActiveButton(buttonType);
   };
 
+  // Cuando se monta el componente, revisa si la orden ya está vencida
   useEffect(() => {
-    if (orderDetails?.identifier) {
+    const isExpired = localStorage.getItem("orderExpired");
+    const savedTimeLeft = localStorage.getItem("timeLeft");
+
+    if (isExpired === "true") {
+      router.push("/result/ko");
+    } else if (savedTimeLeft) {
+      setTimeLeft(parseInt(savedTimeLeft, 10));
+    }
+  }, []);
+
+  // Websocket para status de pago
+  useEffect(() => {
+    if (orderDetails?.identifier && urlWebSocket) {
       const socket = new WebSocket(
-        `wss://payments.pre-bnvo.com/ws/${orderDetails.identifier}`
+        `${urlWebSocket}/${orderDetails.identifier}`
       );
 
       socket.onopen = () => {
@@ -30,13 +45,14 @@ const Buy = ({ orderDetails, splitSymbol }) => {
 
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log("Mensaje recibido:", data);
 
         if (data.status) {
           setPaymentStatus(data.status);
         }
 
         if (data.status === "CO" || data.status === "AC") {
+          localStorage.removeItem("orderExpired");
+          localStorage.removeItem("timeLeft");
           router.push("/result/ok");
         }
       };
@@ -52,22 +68,26 @@ const Buy = ({ orderDetails, splitSymbol }) => {
       return () => {
         socket.close();
       };
-    } else {
-      console.log("El identifier no está disponible aún.");
     }
   }, [orderDetails]);
 
+  // Contador de tiempo
   useEffect(() => {
     if (timeLeft <= 0) {
+      localStorage.setItem("orderExpired", "true");
       router.push("/result/ko");
+    } else {
+      const timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          const newTime = prevTime - 1;
+          localStorage.setItem("timeLeft", newTime.toString());
+          return newTime;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
     }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => prevTime - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
+  }, [timeLeft]);
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
