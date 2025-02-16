@@ -20,7 +20,6 @@ const ModalMoney = ({
   useEffect(() => {
     fetchCurrencies(url, idDevice).then((res) => {
       setCurrencies(res);
-      // Si no hay moneda seleccionada, asigna la primera
       if (res.length > 0 && !selectedCurrency) {
         setSelectedCurrency(res[0]);
       }
@@ -52,7 +51,7 @@ const ModalMoney = ({
           }}
         >
           <div className="flex items-center mb-2 pb-5 border-b w-full">
-            <h3 className="font-semibold text-xl text-customBlue">
+            <h3 className="font-semibold text-xl text-customBlue sm:text-base">
               Seleccionar criptomoneda
             </h3>
           </div>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { FaCheckCircle } from "react-icons/fa";
@@ -6,7 +7,7 @@ import { TbXboxXFilled } from "react-icons/tb";
 const result = () => {
   const router = useRouter();
   const { result } = router.query;
-  console.log(result);
+
   return (
     <>
       {result && (
@@ -26,14 +27,18 @@ const result = () => {
               ¡Pago
               {result === "ok" ? " completado" : " cancelado"}!
             </p>
-            <span className="px-1 mb-5 font-extralight">
+            <span className="mx-2 mb-5 font-extralight ">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis
               ipsa eius excepturi vitae, quas repellat temporibus vero quaerat,
               dignissimos eaque
             </span>
-            
-              <button className="bg-[#035AC5] rounded-md py-3 text-white w-11/12">Crear nuevo pago</button>
-            
+
+            <Link
+              href="/"
+              className="bg-[#035AC5] hover:bg-[#2D7FD5] rounded-md py-3 text-white w-11/12"
+            >
+              Crear nuevo pago
+            </Link>
           </div>
         </section>
       )}

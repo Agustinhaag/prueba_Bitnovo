@@ -1,11 +1,13 @@
 import { submitOrder } from "@/helpers/fetchOrders";
 import { validateForm } from "@/helpers/validateForm";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { CiCircleInfo } from "react-icons/ci";
-import style from "./button.module.css";
 import { IoIosArrowDown } from "react-icons/io";
+import ButtonForm from "./ButtonForm";
+import FieldForm from "./FieldForm";
+import Image from "next/image";
 
 const FormOperation = ({
   selectedCurrency,
@@ -42,7 +44,8 @@ const FormOperation = ({
               ...values,
               selectedCurrency,
             },
-            setLoading
+            setLoading,
+            setError
           );
           if (response) router.push(`/transaction?id=${response.identifier}`);
         } catch (error) {
@@ -52,26 +55,13 @@ const FormOperation = ({
     >
       {(formikProps) => (
         <Form className="flex flex-col items-start gap-5 w-full">
-          <div className="flex flex-col w-full">
-            <label
-              htmlFor="amount"
-              className="text-customBlue mb-0.5 text-sm font-semibold"
-            >
-              Importe a pagar
-            </label>
-            <Field
-              as="input"
-              type="number"
-              name="amount"
-              placeholder="Añade importe a pagar"
-              className="outline-none border placeholder:text-sm rounded border-neutral-300 p-2 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-            />
-            {formikProps.errors["amount"] && formikProps.touched["amount"] && (
-              <span className="span w-full" style={{ color: "red" }}>
-                <ErrorMessage name="amount" />
-              </span>
-            )}
-          </div>
+          <FieldForm
+            formikProps={formikProps}
+            label="Importe a pagar"
+            name="amount"
+            placeholder="Añade importe a pagar"
+            type="number"
+          />
           <div className="flex flex-col w-full">
             <div className="flex items-center gap-1">
               <label className="text-customBlue mb-0.5 text-sm font-semibold">
@@ -84,10 +74,12 @@ const FormOperation = ({
             <div className="flex justify-between border rounded border-neutral-300 p-2 w-full">
               {selectedCurrency && (
                 <div className="flex gap-1 items-center">
-                  <img
+                  <Image
                     src={selectedCurrency.image}
                     alt={selectedCurrency.name}
                     className="w-6 h-6"
+                    width={24}
+                    height={24}
                   />
                   <span className="text-customBlue text-sm">
                     {selectedCurrency.name}
@@ -104,47 +96,17 @@ const FormOperation = ({
               </button>
             </div>
           </div>
-          <div className="flex flex-col w-full">
-            <label
-              htmlFor="amount"
-              className="text-customBlue mb-0.5 text-sm font-semibold"
-            >
-              Concepto
-            </label>
-            <Field
-              as="input"
-              type="text"
-              name="description"
-              placeholder="Añade descripción del pago"
-              className="border placeholder:text-sm rounded border-neutral-300 p-2 w-full outline-none"
-            />
-            {formikProps.errors["description"] &&
-              formikProps.touched["description"] && (
-                <span className="span w-full" style={{ color: "red" }}>
-                  <ErrorMessage name="description" />
-                </span>
-              )}
-          </div>
+          <FieldForm
+            formikProps={formikProps}
+            label="Concepto"
+            name="description"
+            placeholder="Añade descripción del pago"
+            type="text"
+          />
           {error && (
             <p className="text-red-600 text-center mb-2 w-full">¡{error}!</p>
           )}
-          <div className="flex flex-col w-full justify-center mb-5 mt-1">
-            <button
-              className={`p-2 rounded text-white ${
-                !formikProps.values.amount ||
-                formikProps.values.description.trim() === ""
-                  ? "bg-[#C6DFFE] cursor-not-allowed"
-                  : "bg-[#035AC5] hover:bg-[#357ABD] cursor-pointer"
-              }`}
-              disabled={
-                !formikProps.values.amount ||
-                formikProps.values.description.trim() === "" ||
-                loading
-              }
-            >
-              {loading ? <span className={style.loader}></span> : "Continuar"}
-            </button>
-          </div>
+          <ButtonForm formikProps={formikProps} loading={loading} />
         </Form>
       )}
     </Formik>

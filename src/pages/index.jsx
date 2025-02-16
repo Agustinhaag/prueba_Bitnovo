@@ -9,7 +9,7 @@ export const Home = () => {
   return (
     <section className="flex items-center h-screen">
       <div
-        className="w-1/2 mx-auto  rounded-lg p-3"
+        className="w-1/2 mx-auto  rounded-lg p-3 min-w-80"
         style={{ boxShadow: "0 0 16px rgba(0, 0, 0, 0.2)" }}
       >
         <h1 className="text-center text-customBlue font-semibold text-2xl my-2">Crear pago</h1>

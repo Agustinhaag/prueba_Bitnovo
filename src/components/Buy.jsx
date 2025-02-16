@@ -3,64 +3,64 @@ import ReactQR from "react-qr-code";
 import { MdOutlineContentCopy, MdOutlineTimer } from "react-icons/md";
 import { TbInfoHexagon } from "react-icons/tb";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Buy = ({ orderDetails, splitSymbol }) => {
   const [activeButton, setActiveButton] = useState("qr");
   const [timeLeft, setTimeLeft] = useState(5 * 60);
   const router = useRouter();
+  const urlWebSocket = process.env.NEXT_PUBLIC_URL_WEBSOCKETS;
   const [paymentStatus, setPaymentStatus] = useState(
     orderDetails?.status || "pending"
   );
-  console.log(orderDetails);
+
   const handleButtonClick = (buttonType) => {
     setActiveButton(buttonType);
   };
 
   useEffect(() => {
-    if (orderDetails?.status === "EX" || orderDetails?.status === "OC") {
-      router.push("/result/ko");
+    if (orderDetails?.identifier) {
+      const socket = new WebSocket(
+        `wss://payments.pre-bnvo.com/ws/${orderDetails.identifier}`
+      );
+
+      socket.onopen = () => {
+        console.log("Conexión WebSocket establecida.");
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log("Mensaje recibido:", data);
+
+        if (data.status) {
+          setPaymentStatus(data.status);
+        }
+
+        if (data.status === "CO" || data.status === "AC") {
+          router.push("/result/ok");
+        }
+      };
+
+      socket.onerror = (error) => {
+        console.error("Error en WebSocket:", error);
+      };
+
+      socket.onclose = () => {
+        console.log("Conexión WebSocket cerrada.");
+      };
+
+      return () => {
+        socket.close();
+      };
+    } else {
+      console.log("El identifier no está disponible aún.");
     }
-if(orderDetails){
-
-
-    const socket = new WebSocket(
-      `wss://payments.pre-bnvo.com/ws/${
-       orderDetails.identifier
-      }`
-    );
-
-    socket.onopen = () => {
-      console.log("Conexión WebSocket establecida.");
-    };
-
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log("Mensaje recibido:", data);
-
-      if (data.status) {
-        setPaymentStatus(data.status);
-      }
-      if (paymentStatus === "CO" || paymentStatus === "AC") {
-        router.push("/result/ok");
-      }
-    };
-
-    socket.onerror = (error) => {
-      console.error("Error en WebSocket:", error);
-    };
-
-    socket.onclose = () => {
-      console.log("Conexión WebSocket cerrada.");
-    };
-
-    return () => {
-      socket.close();
-    };
-  }
-  }, []);
+  }, [orderDetails]);
 
   useEffect(() => {
-    if (timeLeft === 0) return;
+    if (timeLeft <= 0) {
+      router.push("/result/ko");
+    }
 
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => prevTime - 1);
@@ -126,10 +126,21 @@ if(orderDetails){
           </div>
 
           <div
-            className="rounded-2xl border-none mb-5 p-4"
+            className={`rounded-2xl border-none mb-5 p-4 ${
+              activeButton === "web3" ? "h-40 flex items-center" : ""
+            } `}
             style={{ boxShadow: "0 0 20px rgba(0, 0, 0, 0.2)" }}
           >
-            <ReactQR value={qrData} size={128} />
+            {activeButton === "qr" ? (
+              <ReactQR value={qrData} size={128} />
+            ) : (
+              <Image
+                alt="Metamask"
+                src={"/MetaMask.png"}
+                width={140}
+                height={120}
+              />
+            )}
           </div>
           <div className="flex gap-3 text-sm items-center">
             <span>Enviar</span>
@@ -146,8 +157,8 @@ if(orderDetails){
               </button>
             </div>
           </div>
-          <div className="flex gap-2 text-sm items-center my-3 ">
-            <span className="break-words">{orderDetails.address}</span>
+          <div className="flex gap-2 text-sm items-center my-3 px-1">
+            <span className="break-all">{orderDetails.address}</span>
             <button
               className="text-sky-600"
               onClick={() => copyToClipboard(orderDetails.address)}

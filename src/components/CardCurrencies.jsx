@@ -17,12 +17,13 @@ const CardCurrencies = ({
       className="flex justify-between hover:bg-neutral-200 rounded-md py-1.5 px-2 cursor-pointer"
       onClick={() => handleSelectCurrency(currencie)}
     >
-      <div className="flex gap-2">
+      <div className="flex gap-2 ">
         <Image
           alt={currencie.name}
           src={currencie.image}
           width={50}
           height={50}
+       
         />
         <div className="flex flex-col gap-0.5">
           <p className="text-customBlue">{currencie.name}</p>

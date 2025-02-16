@@ -1,6 +1,12 @@
 import Swal from "sweetalert2";
 
-export const submitOrder = async (url, idDevice, values, setLoading) => {
+export const submitOrder = async (
+  url,
+  idDevice,
+  values,
+  setLoading,
+  setError
+) => {
   try {
     setLoading(true);
     const formData = new FormData();
@@ -28,24 +34,23 @@ export const submitOrder = async (url, idDevice, values, setLoading) => {
     setLoading(false);
     return data;
   } catch (error) {
-    setLoading(false)
+    setLoading(false);
     console.log(error);
+    setError(error.message);
   }
 };
 
-export const fetchOrders = async (url, idDevice, identifier) => {
+
+export const fetchOrdersInfo = async (url, idDevice, identifier) => {
   try {
-    const response = await fetch(`${url}/orders/`, {
+    const response = await fetch(`${url}/orders/info/${identifier}`, {
       headers: {
         "X-Device-Id": idDevice,
       },
     });
     if (response.ok) {
       const data = await response.json();
-      const dataOrder = data.find((order) => {
-        return order.identifier === identifier;
-      });
-      return dataOrder;
+      return data[0];
     }
   } catch (error) {
     console.error("Error obteniendo detalles de la orden:", error);

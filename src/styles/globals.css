@@ -39,3 +39,10 @@
   padding: 1rem;
   overflow-y: auto;
 }
+
+@media (max-width: 640px) {
+  .modal-content {
+    width: 80%;
+    min-width: 325px;
+  }
+}

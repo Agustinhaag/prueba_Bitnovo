@@ -1,8 +1,23 @@
+import { fetchCurrencies } from "@/helpers/fetchCurrencies";
 import dayjs from "dayjs";
-import React from "react";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
 import { BsFillPatchCheckFill } from "react-icons/bs";
 
 const InfoBuy = ({ orderDetails, splitSymbol }) => {
+  const url = process.env.NEXT_PUBLIC_URL;
+  const idDevice = process.env.NEXT_PUBLIC_ID_DEVICE;
+  const [currencie, setCurrencies] = useState();
+
+  useEffect(() => {
+    fetchCurrencies(url, idDevice).then((res) => {
+      res.find((item) => {
+        return setCurrencies(
+          item.name === orderDetails && orderDetails.currency_id
+        );
+      });
+    });
+  }, []);
   return (
     <>
       {orderDetails && (
@@ -13,7 +28,18 @@ const InfoBuy = ({ orderDetails, splitSymbol }) => {
           </div>
           <div className="border-b border-neutral-300 pb-4 flex justify-between">
             <span>Moneda seleccionada:</span>
-            <span>{splitSymbol(orderDetails.currency_id)}</span>
+            <div className="flex items-center gap-1.5">
+              {currencie && (
+                <Image
+                  alt={currencie.name}
+                  src={currencie.image}
+                  height={20}
+                  width={20}
+                />
+              )}
+
+              <span>{splitSymbol(orderDetails.currency_id)}</span>
+            </div>
           </div>
           <div className="border-b border-neutral-300 pb-4 flex flex-col gap-5">
             <div className="flex justify-between">
